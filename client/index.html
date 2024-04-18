@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progetto API</title>
+    <title id="titolo">Progetto API</title>
     <style>
+        
         table {
             width: 100%;
             border-collapse: collapse;
+            align-items: center;
         }
         th, td {
             padding: 8px;
-            text-align: left;
+            text-align: center;
             border-bottom: 1px solid #ddd;
         }
         th {
@@ -88,6 +90,13 @@
             populateDailyTable();
             populateWeeklyTable();
         };
+
+
+        async function logData() {
+  const response = await fetch("http://localhost:3000/getData");
+  const movies = await response.json();
+  console.log(movies);
+}
     </script>
 </body>
 </html>
