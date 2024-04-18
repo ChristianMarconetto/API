@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progetto API</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Progetto API</h1>
+
+    <h2>Misurazioni giornaliere di ozono</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Ora</th>
+                <th>Misurazione (ppm)</th>
+            </tr>
+        </thead>
+        <tbody id="daily-measurements">
+            <!-- Qui verranno inserite le righe della tabella tramite JavaScript -->
+        </tbody>
+    </table>
+
+    <h2>Misurazioni settimanali di ozono</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Settimana</th>
+                <th>Misurazione Media (ppm)</th>
+            </tr>
+        </thead>
+        <tbody id="weekly-measurements">
+            <!-- Qui verranno inserite le righe della tabella tramite JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        // Esempio di dati per le misurazioni giornaliere (sostituisci con dati reali)
+        var dailyData = [
+            { data: '2024-04-17', ora: '08:00', misurazione: 0.03 },
+            { data: '2024-04-17', ora: '12:00', misurazione: 0.05 },
+            { data: '2024-04-17', ora: '16:00', misurazione: 0.04 }
+        ];
+
+        // Esempio di dati per le misurazioni settimanali (sostituisci con dati reali)
+        var weeklyData = [
+            { settimana: 'Settimana 1', misurazioneMedia: 0.035 },
+            { settimana: 'Settimana 2', misurazioneMedia: 0.038 }
+        ];
+
+        // Funzione per popolare la tabella delle misurazioni giornaliere
+        function populateDailyTable() {
+            var tableBody = document.getElementById('daily-measurements');
+            dailyData.forEach(function(measurement) {
+                var row = document.createElement('tr');
+                row.innerHTML = '<td>' + measurement.data + '</td><td>' + measurement.ora + '</td><td>' + measurement.misurazione + '</td>';
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Funzione per popolare la tabella delle misurazioni settimanali
+        function populateWeeklyTable() {
+            var tableBody = document.getElementById('weekly-measurements');
+            weeklyData.forEach(function(measurement) {
+                var row = document.createElement('tr');
+                row.innerHTML = '<td>' + measurement.settimana + '</td><td>' + measurement.misurazioneMedia + '</td>';
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Popola le tabelle quando la pagina è completamente caricata
+        window.onload = function() {
+            populateDailyTable();
+            populateWeeklyTable();
+        };
+    </script>
+</body>
+</html>
