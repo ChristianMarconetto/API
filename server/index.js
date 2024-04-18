@@ -3,27 +3,23 @@ const server = express();
 const path = "data.csv";
 server.listen(3000,()=>{
   console.log("server connesso su http://localhost:3000");
-})<
+})
 async function fromCsvToJson(path){
     var csv = require("csvtojson");
     csv()
     .fromFile(path)
     .then(function(jsonArrayObj){ 
-        console.log(jsonArrayObj);
-        // ---
-
-
-
-        // ---
     })
     csv()
     .subscribe(function(jsonObj){ 
         return new Promise(function(resolve,reject){
-            asyncStoreToDb(json,function(){resolve()})
+            asyncStoreToDb(json,function(){resolve()});
         })
-    }) 
+    })
     const jsonArray=await csv().fromFile(path);
-}
+    console.log(jsonArray)  
+
+};
 fromCsvToJson(path)
   /*obb 1 
 quale ciclo di 8 ore (su tutti i cicli da 8 che ci sono in 24 ore) 
