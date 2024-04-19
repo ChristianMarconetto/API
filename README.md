@@ -1,55 +1,21 @@
-Ecco un possibile readme per il programma:
+### Server
 
-# Analisi dei dati sull'ozono
+Il server è responsabile per l'elaborazione e la gestione dei dati di monitoraggio delle arnie per le api. Il progetto prevede la creazione di un algoritmo di gestione automatica di tali dati, che sono raccolti attraverso un file CSV contenente informazioni sull'ozono nell'ambiente circostante.
 
-Questo programma è progettato per analizzare i dati sull'ozono da un file CSV e fornire alcune statistiche rilevanti.
+#### Struttura del Server
 
-## Dipendenze
+Il server è implementato utilizzando Express.js, un framework web per Node.js. La sua struttura è divisa nelle seguenti parti:
 
-Il programma richiede l'installazione delle seguenti dipendenze:
+1. **Connessione al Server**: Il server si connette alla porta 3000 utilizzando il metodo `listen()` di Express.
 
-- `express`: Utilizzato per creare un server Express per eseguire il programma.
-- `csv-parser`: Utilizzato per analizzare il file CSV e convertirlo in oggetti JavaScript.
+2. **Lettura del File CSV**: Il server legge il file CSV specificato per estrarre i dati sull'ozono. Questo viene fatto utilizzando `fs.createReadStream()` e `csv-parser`, che analizza il file e lo converte in oggetti JavaScript.
 
-Installare le dipendenze eseguendo il comando:
+3. **Obiettivo 1: Ciclo di 8 Ore con Media più Alta**: Il server calcola il ciclo di 8 ore con la media più alta di ozono. Questo viene fatto attraverso un algoritmo che itera sui dati per trovare il ciclo desiderato.
 
-```
-npm install express csv-parser
-```
+4. **Obiettivo 2: Media Oraria più Alta del Giorno e Altri Dettagli**: Il server calcola la media oraria più alta del giorno e altri dettagli correlati all'ozono. Viene calcolato il numero di superamenti giornalieri, così come i livelli minimo e massimo di ozono durante il giorno.
 
-## Utilizzo
+Il server esegue queste operazioni in modo sincrono utilizzando una funzione principale chiamata `fromCsvToJsonSync()`. Le funzioni ausiliarie vengono utilizzate per calcolare le medie e per estrarre le informazioni di interesse dai dati.
 
-1. Assicurarsi che il file CSV sia disponibile nel percorso specificato nel codice (`data.csv` per impostazione predefinita).
-2. Eseguire il programma con il comando:
+### Client
 
-```
-node nome_del_programma.js
-```
-
-## Descrizione del Programma
-
-Il programma svolge le seguenti azioni:
-
-1. **Connessione al Server**: Avvia un server Express sulla porta 3000.
-
-2. **Lettura del File CSV**: Legge il file CSV specificato e lo analizza per estrarre i dati sull'ozono.
-
-3. **Obiettivo 1: Ciclo di 8 Ore con Media più Alta**: Trova il ciclo di 8 ore con la media più alta di ozono.
-
-4. **Obiettivo 2: Media Oraria più Alta del Giorno e Altri Dettagli**:
-   - Calcola la media oraria più alta del giorno e altri dettagli, come il numero di superamenti giornalieri e i livelli minimo e massimo di ozono durante il giorno.
-   - Registra gli superamenti orari di 60 µg/m³ con i dettagli dell'orario e del valore.
-
-## Personalizzazione
-
-Il programma può essere personalizzato modificando le seguenti variabili:
-
-- `path`: Il percorso del file CSV da analizzare. Modificare questa variabile per adattarla al percorso del proprio file CSV.
-
-## Contributi
-
-Per segnalare bug, problemi o per proporre miglioramenti, si prega di aprire un ticket su GitHub nell'apposita sezione.
-
-## Licenza
-
-Questo programma è distribuito con la licenza MIT. Consultare il file `LICENSE` per ulteriori informazioni sulla licenza.
+(Il client è lasciato incompleto)
