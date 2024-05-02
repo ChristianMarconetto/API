@@ -1,34 +1,86 @@
 const express = require("express");
-const server = express();
-
-server.listen(3000, () => {
-  console.log("Server connesso su http://localhost:3000");
-});
-
+const patthern = require("path")
+const {Server} = require("ws")
+let server = express()
+  .use((req, res) => res.sendFile(patthern.join( __dirname ,'../client/index.html')))
+  .listen(3000, () => console.log('Listening on http://localhost:3000'));
+const ws = new Server({ server });
 const path = "data.csv";
+let quale = 0;
+const mysql = require('mysql');
+const con = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "api"
+});
+con.connect()
 
+function readCsv(path, callback){
+  const csv = require('csv-parser');
+  const fs = require('fs');
+  fs.createReadStream(path)
+    .pipe(csv())
+    .on('data', (row) => {
+      if (Object.keys(row).length != 0){
+        jsonArray.push(row);
+      }
+    })
+    .on('end', () => {
+      console.log("Data getted correctly");
+      calculateMetrics(jsonArray);
+}
 function main(path) {
   let jsonArray = [];
   try {
-    const csv = require('csv-parser');
-    const fs = require('fs');
-    
-    fs.createReadStream(path)
-      .pipe(csv())
-      .on('data', (row) => {
-        if (Object.keys(row).length != 0){
-          jsonArray.push(row);
+   
+        ws.on('connection', (wss) => { 
+          console.log('New client connected!');
+          
+          quale++;
+          wss.id=quale;
+          ws.clients.forEach((client) => {
+            console.log("im sending :", jsonArray)
+            client.send(sendToClient(jsonArray));
+         });
+          wss.on('close', () => console.log('Client has disconnected!'));
+          
+          wss.on('message', function(message) {   
+             const arriva = JSON.parse(message);
+             i=arriva.manda.pos;
+             si=arriva.manda.cosa;
+        
+             console.log(tc+" "+wss.id+" "+i+" "+si);
+        
+             let position = {
+                ti: i,
+                colore: colori[wss.id],
+                chi: wss.id
+             }
+             const data = JSON.stringify({'position': position});
+             
+          });
+        });
+        function sendToClient(data){
+          let highestAverageCycle = findHighestAverageCycle(data);
+          let { highestHourlyAverage, hourExceedancesDetails, minOzoneLevel, maxOzoneLevel } = calculateHourlyMetrics(data);
+          let { cycleExceedancesDetails } = calculateCycleExceedances(data);
+          return {
+            "highestAverageCycle": highestAverageCycle,
+            "highestHourlyAverage": highestHourlyAverage,
+            "hourExceedancesDetails": hourExceedancesDetails,
+            "minOzoneLevel": minOzoneLevel,
+            "maxOzoneLevel": maxOzoneLevel,
+            "cycleExceedancesDetails": cycleExceedancesDetails
+          };
         }
-      })
-      .on('end', () => {
-        console.log("Data getted correctly");
-        calculateMetrics(jsonArray);
       });
 
   } catch (error) {
     console.error("Errore durante l'elaborazione:", error);
   }
-}
+
+
 
 function calculateMetrics(data) {
   let highestAverageCycle = findHighestAverageCycle(data);
@@ -45,6 +97,7 @@ function calculateMetrics(data) {
   console.log("Superamenti ciclici di 240 µg/m3 ogni 8 ore:");
   console.log(cycleExceedancesDetails);
 }
+
 
 function findHighestAverageCycle(data) {
   let highestAverage = 0;
@@ -149,4 +202,3 @@ function calculateCycleExceedances(data) {
 
   return { cycleExceedancesDetails };
 }
-console.log(main(path))
