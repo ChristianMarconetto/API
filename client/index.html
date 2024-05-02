@@ -18,17 +18,53 @@
       body {
         font-family: Arial, sans-serif;
         margin: 0;
-        padding: 20px;
+        padding: 0;
+        background-color: #f9f9f9;
+        transition: background-color 0.3s ease;
       }
-      h1 {
-        margin-bottom: 20px;
+      header {
+        background-color: #005a9c;
+        color: white;
+        padding: 1rem;
+        text-align: center;
       }
-      #data-container {
-        margin-bottom: 20px;
+      nav {
+        background-color: #f1f1f1;
+        display: flex;
+        justify-content: space-around;
+        padding: 1rem;
+      }
+      nav a {
+        color: #005a9c;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        transition: color 0.3s ease, background-color 0.3s ease;
+      }
+      nav a:hover {
+        background-color: #005a9c;
+        color: white;
+      }
+      main {
+        padding: 2rem;
+        transition: opacity 0.5s ease;
+        opacity: 0;
+      }
+      h1,
+      h2 {
+        color: #005a9c;
+      }
+      section {
+        margin-bottom: 2rem;
+        border-radius: 5px;
+        background-color: white;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
       }
       table {
         width: 100%;
         border-collapse: collapse;
+        margin-bottom: 1rem;
       }
       th,
       td {
@@ -39,6 +75,17 @@
       th {
         background-color: #f2f2f2;
       }
+      canvas {
+        max-width: 100%;
+        height: auto;
+      }
+      footer {
+        background-color: #f1f1f1;
+        color: #666;
+        padding: 1rem;
+        text-align: center;
+        transition: background-color 0.3s ease;
+      }
     </style>
   </head>
   <body>
@@ -47,23 +94,66 @@
     </header>
 
     <main>
-      <section id="data-container">
-      </section>
+      <nav>
+        <a href="#highest-average-cycle">Dati dei cicli medi più alti</a>
+        <a href="#highest-hourly-average">Media oraria più alta</a>
+        <a href="#hour-exceedances-details"
+          >Dettagli delle superazioni orarie</a
+        >
+        <a href="#min-max-ozone-level">Livello minimo e massimo di O3</a>
+        <a href="#cycle-exceedances-details"
+          >Dettagli delle superazioni cicliche</a
+        >
+        <a href="#chart-section">Grafico delle superazioni orarie</a>
+      </nav>
 
-      <section>
+      <section id="highest-average-cycle">
         <h2>Dati dei cicli medi più alti</h2>
-        <table id="data-table" class="tablesorter">
+        <table id="highest-average-cycle-table" class="tablesorter">
           <thead>
             <tr>
               <th>Data</th>
-              <th>Ozono</th>
+              <th>O3</th>
             </tr>
           </thead>
-          <tbody id="data-table-body"></tbody>
+          <tbody id="highest-average-cycle-body"></tbody>
         </table>
       </section>
 
-      <section>
+      <section id="highest-hourly-average">
+        <h2>Media oraria più alta</h2>
+        <p id="highest-hourly-average-value"></p>
+      </section>
+
+      <section id="hour-exceedances-details">
+        <h2>Dettagli delle superazioni orarie</h2>
+        <table id="hour-exceedances-details-table" class="tablesorter">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Valore O3</th>
+            </tr>
+          </thead>
+          <tbody id="hour-exceedances-details-body"></tbody>
+        </table>
+      </section>
+
+      <section id="min-max-ozone-level">
+        <h2>Livello minimo e massimo di O3</h2>
+        <p id="min-ozone-level"></p>
+        <p id="max-ozone-level"></p>
+      </section>
+
+      <section id="cycle-exceedances-details">
+        <h2>Dettagli delle superazioni cicliche</h2>
+        <p>Da aggiungere quando disponibili.</p>
+      </section>
+
+      <section id="data-container">
+        <!-- Qui verranno inseriti altri dati dal server, se necessario -->
+      </section>
+
+      <section id="chart-section">
         <h2>Grafico delle superazioni orarie</h2>
         <canvas id="chart"></canvas>
       </section>
@@ -90,6 +180,31 @@
     ></script>
 
     <script>
+      // Aggiungi una classe per visualizzare il contenuto principale con una transizione
+      document.body.classList.add("show-content");
+
+      // Aggiungi un gestore per il clic sui link della navigazione
+      document.querySelectorAll("nav a").forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const targetId = this.getAttribute("href").substring(1);
+          const targetSection = document.getElementById(targetId);
+          if (targetSection) {
+            window.scrollTo({
+              top: targetSection.offsetTop - 100,
+              behavior: "smooth",
+            });
+          }
+        });
+      });
+
+      // Aggiungi un gestore per la transizione di apparizione delle sezioni principali
+      window.addEventListener("DOMContentLoaded", function () {
+        const main = document.querySelector("main");
+        main.style.opacity = 1;
+      });
+
+      // WebSocket per ricevere i dati
       let ws = new WebSocket(location.origin.replace(/^http/, "ws"));
 
       ws.onopen = () => {
@@ -101,18 +216,44 @@
         console.log("Dati ricevuti dal server:", data);
 
         // Aggiorna la tabella con i dati dei cicli medi più alti
-        const tableBody = document.getElementById("data-table-body");
-        tableBody.innerHTML = "";
+        const highestAverageCycleBody = document.getElementById(
+          "highest-average-cycle-body"
+        );
+        highestAverageCycleBody.innerHTML = "";
         data.highestAverageCycle.forEach((item) => {
           const row = document.createElement("tr");
-          row.innerHTML = `<td>${item.data}</td><td>${item.ozono}</td>`;
-          tableBody.appendChild(row);
+          row.innerHTML = `<td>${item.Time}</td><td>${item.o3}</td>`;
+          highestAverageCycleBody.appendChild(row);
         });
 
-        const labels = data.hourExceedancesDetails.map((item) => item.data);
-        const values = data.hourExceedancesDetails.map(
-          (item) => item.ozoneValue
+        // Aggiorna la media oraria più alta
+        const highestHourlyAverageValue = document.getElementById(
+          "highest-hourly-average-value"
         );
+        highestHourlyAverageValue.textContent = `Media oraria più alta: ${data.highestHourlyAverage}`;
+
+        // Aggiorna la tabella con i dettagli delle superazioni orarie
+        const hourExceedancesDetailsBody = document.getElementById(
+          "hour-exceedances-details-body"
+        );
+        hourExceedancesDetailsBody.innerHTML = "";
+        data.hourExceedancesDetails.forEach((item) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${item.Time}</td><td>${item.o3}</td>`;
+          hourExceedancesDetailsBody.appendChild(row);
+        });
+
+        // Aggiorna il livello minimo di O3
+        const minOzoneLevel = document.getElementById("min-ozone-level");
+        minOzoneLevel.textContent = `Livello minimo di O3: ${data.minOzoneLevel}`;
+
+        // Aggiorna il livello massimo di O3
+        const maxOzoneLevel = document.getElementById("max-ozone-level");
+        maxOzoneLevel.textContent = `Livello massimo di O3: ${data.maxOzoneLevel}`;
+
+        // Crea il grafico delle superazioni orarie
+        const labels = data.hourExceedancesDetails.map((item) => item.Time);
+        const values = data.hourExceedancesDetails.map((item) => item.o3);
         const ctx = document.getElementById("chart").getContext("2d");
         new Chart(ctx, {
           type: "line",
@@ -143,7 +284,8 @@
       };
 
       $(document).ready(function () {
-        $("#data-table").tablesorter();
+        $("#highest-average-cycle-table").tablesorter();
+        $("#hour-exceedances-details-table").tablesorter();
       });
     </script>
   </body>
