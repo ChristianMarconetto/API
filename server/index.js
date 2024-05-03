@@ -1,30 +1,30 @@
 const express = require("express");
 const fs = require("fs");
-const patthern = require("path");
+const path = require("path");
 const { Server } = require("ws");
-let jsonArray = [];
-
-let server = express()
-  .use((req, res) =>
-    res.sendFile(patthern.join(__dirname, "../client/index.html"))
-  )
-  .listen(3000, () => console.log("Listening on http://localhost:3000"));
-const ws = new Server({ server });
-const path = "data.csv";
-let quale = 0;
+const csv = require("csv-parser");
+const { DateTime } = require("luxon");
 const mysql = require("mysql");
+
+const app = express();
+const server = app.get("/",(req,res) =>{
+  res.sendFile(path.join(__dirname, "../client/index.html"))
+}).listen(3000, () => console.log("Listening on http://localhost:3000"));
+const wsServer = new Server({ server });
+const dataPath = "data.csv";
+
 const con = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "",
   database: "api",
 });
+
 con.connect();
 
 async function readCsv(path) {
-  const jsonArray = [];
-  const csv = require("csv-parser");
-  await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    const jsonArray = [];
     fs.createReadStream(path)
       .pipe(csv())
       .on("data", (row) => {
@@ -34,211 +34,69 @@ async function readCsv(path) {
       })
       .on("end", () => {
         console.log("Data retrieved correctly");
-        resolve();
+        resolve(jsonArray);
       })
       .on("error", (error) => {
         reject(error);
       });
   });
-
-  return jsonArray;
 }
-try {
-  function getData(data) {
-    let highestAverageCycle = findHighestAverageCycle(data);
-    let {
-      highestHourlyAverage,
-      hourExceedancesDetails,
-      minOzoneLevel,
-      maxOzoneLevel,
-    } = calculateHourlyMetrics(data);
-    let { cycleExceedancesDetails } = calculateCycleExceedances(data);
-    return {
-      highestAverageCycle: highestAverageCycle,
-      highestHourlyAverage: highestHourlyAverage,
-      hourExceedancesDetails: hourExceedancesDetails,
-      minOzoneLevel: minOzoneLevel,
-      maxOzoneLevel: maxOzoneLevel,
-      cycleExceedancesDetails: cycleExceedancesDetails,
-    };
-  }
-} catch (error) {
-  console.error("Errore durante l'elaborazione:", error);
+function convertPpbToNgPerM3(ppb) {
+  return ppb * 2;
 }
 
-function calculateMetrics(data) {
-  let highestAverageCycle = findHighestAverageCycle(data);
-  let {
-    highestHourlyAverage,
-    hourExceedancesDetails,
-    minOzoneLevel,
-    maxOzoneLevel,
-  } = calculateHourlyMetrics(data);
-  let { cycleExceedancesDetails } = calculateCycleExceedances(data);
+function calcolaSuperamenti(arrayDati) {
+  // Moltiplica i livelli di o3 per 2
+  const datiMoltiplicati = arrayDati.map((dato) => ({
+    Time: dato.Time,
+    o3: parseInt(dato.o3) * 2,
+  }));
 
-  console.log("Obiettivo 1 - Ciclo di 8 ore con la media più alta di o3:");
-  console.log(highestAverageCycle);
-  console.log(
-    "Obiettivo 2 - Media oraria più alta del giorno:",
-    highestHourlyAverage
-  );
-  console.log(
-    "Numero di superamenti giornalieri:",
-    hourExceedancesDetails.length
-  );
-  console.log(hourExceedancesDetails);
-  console.log(
-    "Livello minimo di o3 durante il giorno:",
-    minOzoneLevel,
-    "µg/m3"
-  );
-  console.log(
-    "Livello massimo di o3 durante il giorno:",
-    maxOzoneLevel,
-    "µg/m3"
-  );
-  console.log("Superamenti ciclici di 240 µg/m3 ogni 8 ore:");
-  console.log(cycleExceedancesDetails);
-}
+  // Conta i superamenti per i valori specificati (120, 180, 240)
+  const soglieSuperamento = [120, 180, 240];
+  const superamenti = new Map();
 
-function findHighestAverageCycle(data) {
-  let highestAverage = 0;
-  let highestAverageCycle = [];
-
-  for (let i = 0; i <= data.length - 8; i++) {
-    const cycleData = data.slice(i, i + 8);
-    const average = calculateOzoneAverage(cycleData);
-
-    if (average > highestAverage) {
-      highestAverage = average;
-      highestAverageCycle = cycleData;
-    }
-  }
-
-  return highestAverageCycle;
-}
-
-function calculateOzoneAverage(data) {
-  let sum = 0;
-  for (let i = 0; i < data.length; i++) {
-    sum += parseInt(data[i].o3);
-  }
-  return (sum / data.length) * 2;
-}
-
-function calculateHourlyMetrics(data) {
-  let hourlyAverages = Array(24).fill(0);
-  let hourExceedancesDetails = [];
-  let minOzoneLevel = Number.MAX_SAFE_INTEGER;
-  let maxOzoneLevel = 0;
-
-  for (let i = 0; i < data.length; i++) {
-    var dataString = data[i].Time;
-    var giorno = parseInt(dataString.substring(0, 2));
-    var mese = parseInt(dataString.substring(3, 5)) - 1;
-    var anno = parseInt(dataString.substring(6, 10));
-    var ora = parseInt(dataString.substring(11, 13));
-    var minuto = parseInt(dataString.substring(14, 16));
-    var secondo = parseInt(dataString.substring(17, 19));
-
-    var dataObj = new Date(anno, mese, giorno, ora, minuto, secondo);
-    const hour = dataObj.getHours();
-
-    hourlyAverages[hour] += parseInt(data[i].o3) * 2;
-
-    if (parseInt(data[i].o3) > maxOzoneLevel) {
-      maxOzoneLevel = parseInt(data[i].o3) * 2;
-    }
-    if (parseInt(data[i].o3) < minOzoneLevel) {
-      minOzoneLevel = parseInt(data[i].o3) * 2;
-    }
-    if (parseInt(data[i].o3) > 60 /* superamenti 120 µg/m3 */) {
-      hourExceedancesDetails.push({
-        Time: data[i].Time,
-        o3: parseInt(data[i].o3) * 2,
-      });
-    }
-  }
-
-  let highestHourlyAverage = 0;
-  let highestHour = 0;
-  for (let hour = 0; hour < hourlyAverages.length; hour++) {
-    let average = hourlyAverages[hour];
-    let count = 0;
-    for (let i = 0; i < data.length; i++) {
-      const dataPoint = data[i];
-      const dataObj = new Date(dataPoint.Time);
-      if (dataObj.getHours() === hour) {
-        count++;
+  datiMoltiplicati.forEach((dato) => {
+    soglieSuperamento.forEach((soglia) => {
+      if (dato.o3 > soglia) {
+        if (!superamenti.has(soglia)) {
+          superamenti.set(soglia, []);
+        }
+        superamenti.get(soglia).push(dato.Time);
       }
-    }
+    });
+  });
 
-    if (count !== 0) {
-      average /= count;
-      hourlyAverages[hour] = average;
-      if (average > highestHourlyAverage) {
-        highestHourlyAverage = average;
-        highestHour = hour;
-      }
-    }
-  }
-  return {
-    highestHourlyAverage,
-    hourExceedancesDetails,
-    minOzoneLevel,
-    maxOzoneLevel,
-  };
+  // Restituisci i risultati
+  const risultati = {};
+  superamenti.forEach((tempi, soglia) => {
+    risultati[`${soglia} superamenti`] = tempi;
+  });
+
+  return risultati;
 }
-function calculateCycleExceedances(data) {
-  let cycleExceedancesDetails = [];
-  for (let i = 0; i <= data.length - 24; i++) {
-    const cycleData = data.slice(i, i + 24);
-    const exceedances = cycleData.filter(
-      (point) => parseInt(point.o3) > 120
-    ).length;
-    const cycleStartTime = cycleData[0].Time;
 
-    if (exceedances >= 8) {
-      cycleExceedancesDetails.push({
-        startTime: cycleStartTime,
-        exceedancesCount: exceedances,
-      });
-    }
-  }
-
-  return { cycleExceedancesDetails };
-}
 (async () => {
   try {
-    const data = await readCsv(path);
-    console.log(typeof data);
-    analyzedData = getData(data);
-    ws.on("connection", (wss) => {
+    const data = await readCsv(dataPath);
+    console.log(data)
+    const exceedances120 = calcolaSuperamenti(data);
+    const exceedances180 = calcolaSuperamenti(data);
+    const exceedances240 = calcolaSuperamenti(data);
+
+    wsServer.on("connection", (ws) => {
       console.log("New client connected!");
 
-      quale++;
-      wss.id = quale;
-      ws.clients.forEach((client) => {
-        client.send(JSON.stringify(analyzedData));
-      });
-      wss.on("close", () => console.log("Client has disconnected!"));
+      ws.send(JSON.stringify({
+        measurements: data,
+        exceedances120: exceedances120,
+        exceedances180: exceedances180,
+        exceedances240: exceedances240
+      }));
 
-      wss.on("message", function (message) {
-        const arriva = JSON.parse(message);
-        i = arriva.manda.pos;
-        si = arriva.manda.cosa;
-
-        console.log(tc + " " + wss.id + " " + i + " " + si);
-
-        let position = {
-          ti: i,
-          colore: colori[wss.id],
-          chi: wss.id,
-        };
-        const data = JSON.stringify({ position: position });
-      });
+      ws.on("close", () => console.log("Client has disconnected!"));
     });
   } catch (error) {
-    console.error("Errore durante il recupero dei dati dal CSV:", error);
+    console.error("Error retrieving data from CSV:", error);
   }
 })();
