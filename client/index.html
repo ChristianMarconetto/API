@@ -1,263 +1,134 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Project: Dati dal server tramite WebSocket</title>
-    <meta
-      name="description"
-      content="Pagina per visualizzare dati dal server tramite WebSocket per il progetto API."
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.blue.min.css"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f9f9f9;
-        transition: background-color 0.3s ease;
-      }
-      header {
-        background-color: #005a9c;
-        color: white;
-        padding: 1rem;
-        text-align: center;
-      }
-      nav {
-        background-color: #f1f1f1;
-        display: flex;
-        justify-content: space-around;
-        padding: 1rem;
-      }
-      nav a {
-        color: #005a9c;
-        text-decoration: none;
-        padding: 0.5rem 1rem;
-        transition: color 0.3s ease, background-color 0.3s ease;
-      }
-      nav a:hover {
-        background-color: #005a9c;
-        color: white;
-      }
-      main {
-        padding: 2rem;
-        transition: opacity 0.5s ease;
-        opacity: 0;
-      }
-      h1 {
-        color: white;
-      }
-      h2 {
-        color: #005a9c;
-      }
-      section {
-        margin-bottom: 2rem;
-        border-radius: 5px;
-        background-color: white;
-        padding: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 1rem;
-      }
-      th,
-      td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-      }
-      th {
-        background-color: #f2f2f2;
-      }
-      canvas {
-        max-width: 100%;
-        height: auto;
-      }
-      footer {
-        background-color: #f1f1f1;
-        color: #666;
-        padding: 1rem;
-        text-align: center;
-        transition: background-color 0.3s ease;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>API Project: Dati dal server tramite WebSocket</h1>
-    </header>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grafico Misurazioni O3</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
 
-    <main>
-      <nav>
-        <a href="#highest-average-cycle">Dati dei cicli medi più alti</a>
-        <a href="#highest-hourly-average">Media oraria più alta</a>
-        <a href="#hour-exceedances-details"
-          >Dettagli delle superazioni orarie</a
-        >
-        <a href="#min-max-ozone-level">Livello minimo e massimo di O3</a>
-        <a href="#cycle-exceedances-details"
-          >Dettagli delle superazioni cicliche</a
-        >
-        <a href="#chart-section">Grafico delle superazioni orarie</a>
-      </nav>
+    header {
+      background-color: #333;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-      <section id="highest-average-cycle">
-        <h2>Dati dei cicli medi più alti</h2>
-        <table id="highest-average-cycle-table" class="tablesorter">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>O3</th>
-            </tr>
-          </thead>
-          <tbody id="highest-average-cycle-body"></tbody>
-        </table>
-      </section>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
 
-      <section id="highest-hourly-average">
-        <h2>Media oraria più alta</h2>
-        <p id="highest-hourly-average-value"></p>
-      </section>
+    section {
+      width: 80%;
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
 
-      <section id="hour-exceedances-details">
-        <h2>Dettagli delle superazioni orarie</h2>
-        <table id="hour-exceedances-details-table" class="tablesorter">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Valore O3</th>
-            </tr>
-          </thead>
-          <tbody id="hour-exceedances-details-body"></tbody>
-        </table>
-      </section>
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
 
-      <section id="min-max-ozone-level">
-        <h2>Livello minimo e massimo di O3</h2>
-        <p id="min-ozone-level"></p>
-        <p id="max-ozone-level"></p>
-      </section>
+    canvas {
+      display: block;
+      margin: auto;
+    }
 
-      <section id="cycle-exceedances-details">
-        <h2>Dettagli delle superazioni cicliche</h2>
-        <p>Da aggiungere quando disponibili.</p>
-      </section>
+    #additional-data {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
 
-      <section id="data-container">
-        <!-- Qui verranno inseriti altri dati dal server, se necessario -->
-      </section>
+    #additional-data p {
+      margin: 0;
+      color: #555;
+    }
 
-      <section id="chart-section">
-        <h2>Grafico delle superazioni orarie</h2>
-        <canvas id="chart"></canvas>
-      </section>
-    </main>
+    #additional-data h3 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Grafico Misurazioni O3</h1>
+  </header>
 
-    <footer>
-      <p>&copy; 2024 API Project. Tutti i diritti riservati.</p>
-    </footer>
+  <main>
+    <!-- Sezione per il grafico -->
+    <section id="chart-section">
+      <h2>Andamento Misurazioni O3</h2>
+      <canvas id="chart" width="800" height="400"></canvas>
+    </section>
 
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
+    <!-- Sezione per i dati aggiuntivi -->
+    <section id="additional-data-section">
+      <h2>Dati Aggiuntivi</h2>
+      <div id="additional-data">
+        <div>
+          <h3>Superamenti 120 ng/m^3</h3>
+          <p>Numero: 10</p>
+          <p>Intervalli: 09:00 - 10:00, 12:00 - 13:00</p>
+        </div>
+        <div>
+          <h3>Superamenti 180 ng/m^3</h3>
+          <p>Numero: 5</p>
+          <p>Intervalli: 10:00 - 11:00, 13:00 - 14:00</p>
+        </div>
+        <div>
+          <h3>Superamenti 240 ng/m^3</h3>
+          <p>Numero: 2</p>
+          <p>Intervalli: 11:00 - 12:00, 14:00 - 15:00</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <script>
-      // Aggiungi una classe per visualizzare il contenuto principale con una transizione
-      document.body.classList.add("show-content");
+  <script>
+    let chart;
 
-      // Aggiungi un gestore per il clic sui link della navigazione
-      document.querySelectorAll("nav a").forEach((anchor) => {
-        anchor.addEventListener("click", function (e) {
-          e.preventDefault();
-          const targetId = this.getAttribute("href").substring(1);
-          const targetSection = document.getElementById(targetId);
-          if (targetSection) {
-            window.scrollTo({
-              top: targetSection.offsetTop - 100,
-              behavior: "smooth",
-            });
-          }
-        });
-      });
+    // WebSocket per ricevere i dati
+    let ws = new WebSocket("ws://localhost:3000"); // Assicurati di sostituire "localhost:3000" con l'URL effettivo del tuo WebSocket
 
-      // Aggiungi un gestore per la transizione di apparizione delle sezioni principali
-      window.addEventListener("DOMContentLoaded", function () {
-        const main = document.querySelector("main");
-        main.style.opacity = 1;
-      });
+    ws.onopen = () => {
+      console.log("Connessione WebSocket stabilita.");
+    };
 
-      // WebSocket per ricevere i dati
-      let ws = new WebSocket(location.origin.replace(/^http/, "ws"));
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Dati ricevuti dal server:", data);
 
-      ws.onopen = () => {
-        console.log("Connessione WebSocket stabilita.");
-      };
+      // Estrai i dati di misurazione e le etichette di tempo
+      const measurements = data.measurements;
+      const labels = measurements.map((item) => item.Time);
+      const values = measurements.map((item) => item.o3 * 2);
 
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        console.log("Dati ricevuti dal server:", data);
-
-        // Aggiorna la tabella con i dati dei cicli medi più alti
-        const highestAverageCycleBody = document.getElementById(
-          "highest-average-cycle-body"
-        );
-        highestAverageCycleBody.innerHTML = "";
-        data.highestAverageCycle.forEach((item) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `<td>${item.Time}</td><td>${item.o3}</td>`;
-          highestAverageCycleBody.appendChild(row);
-        });
-
-        // Aggiorna la media oraria più alta
-        const highestHourlyAverageValue = document.getElementById(
-          "highest-hourly-average-value"
-        );
-        highestHourlyAverageValue.textContent = `Media oraria più alta: ${data.highestHourlyAverage}`;
-
-        // Aggiorna la tabella con i dettagli delle superazioni orarie
-        const hourExceedancesDetailsBody = document.getElementById(
-          "hour-exceedances-details-body"
-        );
-        hourExceedancesDetailsBody.innerHTML = "";
-        data.hourExceedancesDetails.forEach((item) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `<td>${item.Time}</td><td>${item.o3}</td>`;
-          hourExceedancesDetailsBody.appendChild(row);
-        });
-
-        // Aggiorna il livello minimo di O3
-        const minOzoneLevel = document.getElementById("min-ozone-level");
-        minOzoneLevel.textContent = `Livello minimo di O3: ${data.minOzoneLevel}`;
-
-        // Aggiorna il livello massimo di O3
-        const maxOzoneLevel = document.getElementById("max-ozone-level");
-        maxOzoneLevel.textContent = `Livello massimo di O3: ${data.maxOzoneLevel}`;
-
-        // Crea il grafico delle superazioni orarie
-        const labels = data.hourExceedancesDetails.map((item) => item.Time);
-        const values = data.hourExceedancesDetails.map((item) => item.o3);
+      // Aggiorna il grafico delle misurazioni
+      if (chart) {
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = values;
+        chart.update();
+      } else {
         const ctx = document.getElementById("chart").getContext("2d");
-        new Chart(ctx, {
+        chart = new Chart(ctx, {
           type: "line",
           data: {
             labels: labels,
@@ -279,16 +150,37 @@
             },
           },
         });
-      };
+      }
 
-      ws.onclose = () => {
-        console.log("Connessione WebSocket chiusa.");
-      };
+      // Aggiorna i dati aggiuntivi
+      updateAdditionalData(data);
+    };
 
-      $(document).ready(function () {
-        $("#highest-average-cycle-table").tablesorter();
-        $("#hour-exceedances-details-table").tablesorter();
-      });
-    </script>
-  </body>
+    ws.onclose = () => {
+      console.log("Connessione WebSocket chiusa.");
+    };
+
+    // Funzione per aggiornare i dati aggiuntivi
+    function updateAdditionalData(data) {
+      const additionalDataSection = document.getElementById("additional-data");
+      additionalDataSection.innerHTML = `
+        <div>
+          <h3>Superamenti 120 ng/m^3</h3>
+          <p>Numero: ${data.exceedances120["120 superamenti"].length}</p>
+          <p>Intervalli: ${data.exceedances120["120 superamenti"].join(", ")}</p>
+        </div>
+        <div>
+          <h3>Superamenti 180 ng/m^3</h3>
+          <p>Numero: ${data.exceedances180["180 superamenti"].length}</p>
+          <p>Intervalli: ${data.exceedances180["180 superamenti"].join(", ")}</p>
+        </div>
+        <div>
+          <h3>Superamenti 240 ng/m^3</h3>
+          <p>Numero: ${data.exceedances240["240 superamenti"].length}</p>
+          <p>Intervalli: ${data.exceedances240["240 superamenti"].join(", ")}</p>
+        </div>
+      `;
+    }
+  </script>
+</body>
 </html>
