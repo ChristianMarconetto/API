@@ -1,90 +1,112 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home - Web App sulle API</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #e8f807;
-        }
-        header {
-            background-color: #000000;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-        }
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 0 20px;
-            
-        }
-        h1 {
-            margin-top: 0;
-        }
-        p {
-            line-height: 1.6;
-        }
-        .cta-button {
-            display: inline-block;
-            background-color: #e9f810;
-            color: #000000;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .cta-button:hover {
-            background-color: #0056b3;
-        }
-        footer{
-            flex-direction: row;
-            text-align: center;
-        }
-        .logo {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 100px; /* Imposta la larghezza dell'immagine */
-            height: auto; /* Imposta l'altezza in base alla larghezza per mantenere le proporzioni */
-        }
-       
-    </style>
-</head>
-<body>
-    <header>
-        <img src="../img/beelogo.jpg" alt="Logo" class="logo">
-        <h1>Progetto API</h1>
-        <p>controlla le misurazioni di ozono</p>
-        <a href="./index.html" class="cta-button">monitoraggio ozono</a>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="bg-black text-white py-8 text-center">
+      <div class="container mx-auto flex flex-col justify-between items-center">
+        <div class="flex items-center">
+          <img
+            src="https://media.brawltime.ninja/brawlers/bea/pins/pin-thanksanim.gif?size=160"
+            alt="Logo"
+            class="w-16 h-auto mr-4"
+          />
+        </div>
+
+        <a
+          href="./index.html"
+          class="inline-block bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-4 rounded-lg transition duration-300"
+          >Monitoraggio Ozono</a
+        >
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold">Progetto API</h1>
+        <p class="text-sm">controlla le misurazioni di ozono</p>
+      </div>
     </header>
-    <div class="container" id="about">
-        <h2>A cosa possono servire le api?</h2>
-        <p> Esse sono responsabili della fertilizzazione di molti tipi di piante, inclusi frutta, verdura e fiori. Senza le api, molte specie vegetali non sarebbero in grado di riprodursi e potrebbero scomparire, con conseguenze disastrose sull'ecosistema nel suo complesso e sull'agricoltura.</p>
-        <h2>Che effetto ha l'ozono sulle api?</h2>
-        <p>Il legame tra le api e l'ozono può essere considerato indiretto. L'inquinamento atmosferico, incluso l'ozono troposferico (l'ozono presente nella parte inferiore dell'atmosfera), può avere effetti negativi sulla salute delle api e sulla loro capacità di navigare e svolgere le loro funzioni vitali. L'ozono troposferico, ad esempio, può danneggiare le membrane cellulari delle api e influenzare negativamente la qualità dell'aria, riducendo la disponibilità di piante da polline e nettare.
-
-            Inoltre, le api sono sensibili agli effetti dei cambiamenti climatici, che possono essere correlati agli alti livelli di ozono e altri inquinanti atmosferici. Aree più calde o siccitose, causate dai cambiamenti climatici, possono influenzare la disponibilità di fiori e altre risorse alimentari per le api.</p>
-            <h2>Tabella delle misurazioni di ozono</h2>
-            <p>È fondamentale monitorare i livelli di ozono nell'aria in aree dove le api sono presenti in quanto l'ozono può influenzare direttamente la salute degli insetti impollinatori. Livelli elevati di ozono troposferico possono danneggiare le membrane cellulari delle api e ridurre la loro capacità di orientarsi e svolgere le loro funzioni vitali, compromettendo così la loro sopravvivenza e il loro ruolo nell'impollinazione delle piante.
-
-                Una tabella di misurazioni di ozono in un ambiente apiario fornisce dati cruciali per comprendere l'impatto dell'inquinamento atmosferico sulle popolazioni di api e sull'ecosistema circostante. Monitorare regolarmente i livelli di ozono può aiutare a identificare potenziali rischi per la salute delle api e ad adottare misure preventive per proteggerle e preservare l'equilibrio dell'ecosistema.
-                
-                In questa tabella, saranno registrate le misurazioni di ozono nell'aria, insieme a informazioni sulle condizioni meteorologiche e altre variabili ambientali, per creare un quadro completo degli effetti dell'ozono sulle api e sull'ambiente circostante.</p>
+    <div class="container mx-auto px-4 py-8">
+      <h2 class="text-xl font-semibold mb-4">A cosa possono servire le api?</h2>
+      <p class="mb-8">
+        Esse sono responsabili della fertilizzazione di molti tipi di piante,
+        inclusi frutta, verdura e fiori. Senza le api, molte specie vegetali non
+        sarebbero in grado di riprodursi e potrebbero scomparire, con
+        conseguenze disastrose sull'ecosistema nel suo complesso e
+        sull'agricoltura.
+      </p>
+      <h2 class="text-xl font-semibold mb-4">
+        Che effetto ha l'ozono sulle api?
+      </h2>
+      <p class="mb-8">
+        Il legame tra le api e l'ozono può essere considerato indiretto.
+        L'inquinamento atmosferico, incluso l'ozono troposferico (l'ozono
+        presente nella parte inferiore dell'atmosfera), può avere effetti
+        negativi sulla salute delle api e sulla loro capacità di navigare e
+        svolgere le loro funzioni vitali. L'ozono troposferico, ad esempio, può
+        danneggiare le membrane cellulari delle api e influenzare negativamente
+        la qualità dell'aria, riducendo la disponibilità di piante da polline e
+        nettare. Inoltre, le api sono sensibili agli effetti dei cambiamenti
+        climatici, che possono essere correlati agli alti livelli di ozono e
+        altri inquinanti atmosferici. Aree più calde o siccitose, causate dai
+        cambiamenti climatici, possono influenzare la disponibilità di fiori e
+        altre risorse alimentari per le api.
+      </p>
+      <h2 class="text-xl font-semibold mb-4">
+        Tabella delle misurazioni di ozono
+      </h2>
+      <p class="mb-8">
+        È fondamentale monitorare i livelli di ozono nell'aria in aree dove le
+        api sono presenti in quanto l'ozono può influenzare direttamente la
+        salute degli insetti impollinatori. Livelli elevati di ozono
+        troposferico possono danneggiare le membrane cellulari delle api e
+        ridurre la loro capacità di orientarsi e svolgere le loro funzioni
+        vitali, compromettendo così la loro sopravvivenza e il loro ruolo
+        nell'impollinazione delle piante. Una tabella di misurazioni di ozono in
+        un ambiente apiario fornisce dati cruciali per comprendere l'impatto
+        dell'inquinamento atmosferico sulle popolazioni di api e sull'ecosistema
+        circostante. Monitorare regolarmente i livelli di ozono può aiutare a
+        identificare potenziali rischi per la salute delle api e ad adottare
+        misure preventive per proteggerle e preservare l'equilibrio
+        dell'ecosistema.
+      </p>
     </div>
-    <footer>
-    <div class="footer">
-        <p>&copy; 2024 ProgettoAPI. Tutti i diritti riservati.</p>
-       
-            <a href="#" >Termini e condizioni</a>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Contattaci</a>
-   
-    </div>
-</footer>
-</body>
+    <footer class="bg-black text-white py-6 text-center">
+      <div class="container mx-auto">
+        <p class="text-sm">
+          &copy; 2024 ProgettoAPI. Tutti i diritti riservati.
+        </p>
+        <div class="mt-4 flex justify-center space-x-4">
+          <a href="#" class="text-sm hover:underline">Termini e condizioni</a>
+          <a href="#" class="text-sm hover:underline">Privacy Policy</a>
+          <a href="#" class="text-sm hover:underline">Contattaci</a>
+        </div>
+      </div>
+    </footer>
+    <a
+      href="/"
+      class="fixed bottom-4 right-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full flex items-center justify-center transition duration-300"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-6 h-6 mr-2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"
+        />
+      </svg>
+      Torna alla Home
+    </a>
+  </body>
 </html>
