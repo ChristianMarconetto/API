@@ -3,16 +3,17 @@ const fs = require("fs");
 const path = require("path");
 const { Server } = require("ws");
 const csv = require("csv-parser");
-const { DateTime } = require("luxon");
 const mysql = require("mysql");
 
 const app = express();
-app.get("/home",(req,res) =>{
-  res.sendFile(path.join(__dirname, "../client/home.html"))
-})
-const server = app.get("/",(req,res) =>{
-  res.sendFile(path.join(__dirname, "../client/index.html"))
+app.get("/home", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/home.html"));
+});
+
+const server = app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/index.html"));
 }).listen(3000, () => console.log("Listening on http://localhost:3000"));
+
 const wsServer = new Server({ server });
 const dataPath = "data.csv";
 
@@ -28,7 +29,7 @@ con.connect();
 async function readCsv(path) {
   return new Promise((resolve, reject) => {
     const jsonArray = [];
-    const filteredData = []; // Array per memorizzare i dati filtrati
+    const filteredData = [];
     fs.createReadStream(path)
       .pipe(csv())
       .on("data", (row) => {
@@ -38,8 +39,7 @@ async function readCsv(path) {
       })
       .on("end", () => {
         console.log("Data retrieved correctly");
-        
-        // Filtraggio dei dati in base alla condizione specificata
+
         const groupedData = {};
         jsonArray.forEach((row) => {
           if (!groupedData[row.Time] || groupedData[row.Time] < parseInt(row.o3)) {
@@ -47,12 +47,11 @@ async function readCsv(path) {
           }
         });
 
-        // Costruzione dell'array di dati filtrati
         Object.keys(groupedData).forEach((time) => {
           filteredData.push({ Time: time, o3: groupedData[time] });
         });
 
-        resolve(filteredData); // Risolvi con i dati filtrati
+        resolve(filteredData);
       })
       .on("error", (error) => {
         reject(error);
@@ -65,13 +64,11 @@ function convertPpbToNgPerM3(ppb) {
 }
 
 function calcolaSuperamenti(arrayDati) {
-  // Moltiplica i livelli di o3 per 2
   const datiMoltiplicati = arrayDati.map((dato) => ({
     Time: dato.Time,
     o3: parseInt(dato.o3) * 2,
   }));
 
-  // Conta i superamenti per i valori specificati (120, 180, 240)
   const soglieSuperamento = [120, 180, 240];
   const superamenti = new Map();
 
@@ -86,7 +83,6 @@ function calcolaSuperamenti(arrayDati) {
     });
   });
 
-  // Restituisci i risultati
   const risultati = {};
   superamenti.forEach((tempi, soglia) => {
     risultati[`${soglia} superamenti`] = tempi;
@@ -95,13 +91,36 @@ function calcolaSuperamenti(arrayDati) {
   return risultati;
 }
 
+function calcolaMediaO3Su8Ore(data) {
+  const intervalli8Ore = [];
+  const numMisurazioniGiornaliere = 24;
+  let maxMedia = -Infinity;
+  let intervalloMaxMedia = null;
+
+  for (let i = 0; i <= data.length - 8; i++) {
+    const intervallo = data.slice(i, i + 8);
+    const somma = intervallo.reduce((acc, curr) => acc + curr.o3, 0);
+    const media = somma / 8;
+
+    if (media > maxMedia) {
+      maxMedia = media;
+      intervalloMaxMedia = intervallo.map(item => item.Time);
+    }
+
+    intervalli8Ore.push(media);
+  }
+
+  return { average: maxMedia, interval: intervalloMaxMedia };
+}
+
 (async () => {
   try {
     const data = await readCsv(dataPath);
-    console.log(data)
     const exceedances120 = calcolaSuperamenti(data);
     const exceedances180 = calcolaSuperamenti(data);
     const exceedances240 = calcolaSuperamenti(data);
+    
+    const mediaPiuAlta = calcolaMediaO3Su8Ore(data);
 
     wsServer.on("connection", (ws) => {
       console.log("New client connected!");
@@ -110,7 +129,8 @@ function calcolaSuperamenti(arrayDati) {
         measurements: data,
         exceedances120: exceedances120,
         exceedances180: exceedances180,
-        exceedances240: exceedances240
+        exceedances240: exceedances240,
+        highest8HourAverage: mediaPiuAlta
       }));
 
       ws.on("close", () => console.log("Client has disconnected!"));
