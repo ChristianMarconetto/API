@@ -16,7 +16,6 @@ const server = app.get("/", (req, res) => {
 const wsServer = new Server({ server });
 const dataPath = "data.csv";
 
-con.connect();
 
 async function readCsv(path) {
   return new Promise((resolve, reject) => {
@@ -84,25 +83,25 @@ function calcolaSuperamenti(arrayDati) {
 }
 
 function calcolaMediaO3Su8Ore(data) {
-  const intervalli8Ore = [];
-  const numMisurazioniGiornaliere = 24;
-  let maxMedia = -Infinity;
-  let intervalloMaxMedia = null;
+  let media = []
+  let intervalli = []
+  let superamenti = 0
 
   for (let i = 0; i <= data.length - 8; i++) {
     const intervallo = data.slice(i, i + 8);
     const somma = intervallo.reduce((acc, curr) => acc + curr.o3, 0);
     const media = somma / 8;
-
-    if (media > maxMedia) {
-      maxMedia = media;
-      intervalloMaxMedia = intervallo.map(item => item.Time);
+    if (media>120){
+      intervalli.push(intervallo)
+      media.push(media)
+      superamenti++
     }
-
-    intervalli8Ore.push(media);
+    
   }
-
-  return { average: maxMedia, interval: intervalloMaxMedia };
+  if (superamenti <= 0){
+    return { superamenti:"Non ci sono superamenti",intervalli:"Dati indisponibile" ,media:"Dati indisponibile" };
+  }
+  return { superamenti:superamenti,intervalli:intervalli ,media: media };
 }
 
 (async () => {
