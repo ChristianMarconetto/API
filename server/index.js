@@ -3,7 +3,6 @@ const fs = require("fs");
 const path = require("path");
 const { Server } = require("ws");
 const csv = require("csv-parser");
-const mysql = require("mysql");
 
 const app = express();
 app.get("/home", (req, res) => {
@@ -16,13 +15,6 @@ const server = app.get("/", (req, res) => {
 
 const wsServer = new Server({ server });
 const dataPath = "data.csv";
-
-const con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "api",
-});
 
 con.connect();
 
