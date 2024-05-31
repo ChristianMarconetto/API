@@ -247,12 +247,15 @@
         document.getElementById("highest-8-hour-average");
       highest8HourAverageSection.innerHTML = `
           <div class="p-4 border border-gray-300 rounded-lg">
-            <h3 class="text-xl font-semibold mb-2">Media più alta su 8 ore</h3>
-            <p class="text-gray-600">Media: ${
-              highest8HourAverage.average
+            <h3 class="text-xl font-semibold mb-2">Numero superamenti medie di 8h</h3>
+            <p class="text-gray-600">Superamenti: ${
+              highest8HourAverage.superamenti
             } ng/m^3</p>
-            <p class="text-gray-600">Intervallo: ${
-              highest8HourAverage.interval[0]+ highest8HourAverage.interval[7]
+            <p class="text-gray-600">Intervalli: ${
+              highest8HourAverage.intervalli
+            }</p>
+            <p class="text-gray-600">Medie: ${
+              highest8HourAverage.media
             }</p>
           </div>
         `;
